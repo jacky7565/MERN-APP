@@ -146,17 +146,17 @@ th {
     cursor: pointer;
   }
 
-
   #search-box {
    display: flex;
    justify-content: center;
    align-items: center;
    margin: -1px;
+   position: relative; /* Added to position the icon inside */
  }
  
  #search-box input[type="search"] {
    width: 240px;
-   padding: 10px;
+   padding: 10px 10px 10px 30px; /* Added padding-left to make space for the icon */
    border: 1px solid #ccc;
    border-radius: 10px;
    font-size: 16px;
@@ -171,6 +171,15 @@ th {
  #search-box input[type="search"]:focus {
    border-color: #007bff; /* Change border color on focus */
    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Add shadow on focus */
+ }
+ 
+ #search-box .fa-search {
+   position: absolute;
+   left: 10px; /* Adjust this value based on your preference */
+   top: 50%;
+   transform: translateY(-50%);
+   pointer-events: none; /* Ensure the icon doesn't block input interactions */
+   color: #999; /* Change this to the desired color */
  }
  
   

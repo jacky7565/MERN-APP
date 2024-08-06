@@ -1,5 +1,4 @@
 import "./Fetch_user.css";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -11,8 +10,10 @@ export const View = () => {
   let addClick = () => {
     navigate("/add");
   };
-
+  const [intSeach,Setsearch]=useState("");
   let [fech, setFetch] = useState([]);
+  const[currentPage,setCurrentPage]=useState(0);
+  const[itemPerPage]=useState(10);
 
   useEffect(() => {
     let getData = async () => {
@@ -36,15 +37,32 @@ export const View = () => {
         try {
           await axios.delete(`http://localhost:7000/api/delete/${id}`);
           Swal.fire("Deleted!", "Your data has been deleted.", "success");
-          // Optionally, refresh the data or update the state
+
           setFetch(fech.filter((user) => user._id !== id));
         } catch (error) {
           console.error(error);
-          Swal.fire("Error!", "There was an error deleting your data.", "error");
+          Swal.fire(
+            "Error!",
+            "There was an error deleting your data.",
+            "error"
+          );
         }
       }
     });
   };
+
+  let filterData = fech.filter(val =>
+    val.fname.toLowerCase().includes(intSeach.toLowerCase()) ||
+    val.lname.toLowerCase().includes(intSeach.toLowerCase()) ||
+    val.email.toLowerCase().includes(intSeach.toLowerCase())
+  );
+  let searchUsers = (e) => {
+    let { value } = e.target;
+    Setsearch(value)
+   
+  };
+
+  let offSet=currentPage*itemPerPage;
 
   return (
     <>
@@ -55,10 +73,18 @@ export const View = () => {
               <div className="card-body text-center">
                 <h5 className="card-title m-b-0">User Listing</h5>
                 <div id="addButton">
-                  <div id="search-box"><input type="search" placeholder="Search"/></div>
-                  <button  onClick={addClick}>
+                  <div id="search-box">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    <input
+                      type="search"
+                      onChange={searchUsers}
+                      value={intSeach}
+                      placeholder="Search"
+                    />
+                  </div>
+                  <button onClick={addClick}>
                     {" "}
-                    <i class="fa fa-plus" aria-hidden="true"></i>  Add
+                    <i class="fa fa-plus" aria-hidden="true"></i> Add
                   </button>
                 </div>
               </div>
@@ -82,36 +108,39 @@ export const View = () => {
                     </tr>
                   </thead>
                   <tbody className="customtable">
-                    {fech
+                    {filterData
                       .slice()
                       .reverse()
-                        .map((val, index) => {
-                          return (
-                            <tr key={index}>
-                              <th>
-                                <label className="customcheckbox">
-                                  <input
-                                    type="checkbox"
-                                    className="listCheckbox"
-                                  />
-                                  <span className="checkmark"></span>
-                                </label>
-                              </th>
-                              <td>{index + 1}</td>
-                              <td>{val.fname}</td>
-                              <td>{val.lname}</td>
-                              <td>{val.email}</td>
-                              <td>{val.password}</td>
-                              <td>
-                                <Link onClick={()=>deleteUser(val._id)} style={{ color: "#C70000" }}>
-                                  <i class="fa fa-trash"></i>
-                                </Link>{" "}
-                                |{" "}
-                                <Link to={`/edit/` + val._id}>
-                                  <i class="fa fa-edit"></i>
-                                </Link>
-                              </td>
-                            </tr>
+                      .map((val, index) => {
+                        return (
+                          <tr key={index}>
+                            <th>
+                              <label className="customcheckbox">
+                                <input
+                                  type="checkbox"
+                                  className="listCheckbox"
+                                />
+                                <span className="checkmark"></span>
+                              </label>
+                            </th>
+                            <td>{index + 1}</td>
+                            <td>{val.fname}</td>
+                            <td>{val.lname}</td>
+                            <td>{val.email}</td>
+                            <td>{val.password}</td>
+                            <td>
+                              <Link
+                                onClick={() => deleteUser(val._id)}
+                                style={{ color: "#C70000" }}
+                              >
+                                <i class="fa fa-trash"></i>
+                              </Link>{" "}
+                              |{" "}
+                              <Link to={`/edit/` + val._id}>
+                                <i class="fa fa-edit"></i>
+                              </Link>
+                            </td>
+                          </tr>
                         );
                       })}
                   </tbody>
