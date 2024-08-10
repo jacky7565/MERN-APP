@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import ReactPaginate from  "react-paginate";
 
 export const View = () => {
   let navigate = useNavigate();
@@ -12,8 +13,8 @@ export const View = () => {
   };
   const [intSeach,Setsearch]=useState("");
   let [fech, setFetch] = useState([]);
-  const[currentPage,setCurrentPage]=useState(0);
-  const[itemPerPage]=useState(10);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage] = useState(10);
 
   useEffect(() => {
     let getData = async () => {
@@ -61,8 +62,14 @@ export const View = () => {
     Setsearch(value)
    
   };
+  const handlePageClick = (event) => {
+    setCurrentPage(event.selected);
+  };
 
-  let offSet=currentPage*itemPerPage;
+  const offset = currentPage * itemsPerPage;
+  const currentPageData = filterData.slice(offset, offset + itemsPerPage);
+  const pageCount = Math.ceil(filterData.length / itemsPerPage);
+
 
   return (
     <>
@@ -108,7 +115,7 @@ export const View = () => {
                     </tr>
                   </thead>
                   <tbody className="customtable">
-                    {filterData
+                    {currentPageData
                       .slice()
                       .reverse()
                       .map((val, index) => {
@@ -123,7 +130,7 @@ export const View = () => {
                                 <span className="checkmark"></span>
                               </label>
                             </th>
-                            <td>{index + 1}</td>
+                            <td>{index + 1+offset}</td>
                             <td>{val.fname}</td>
                             <td>{val.lname}</td>
                             <td>{val.email}</td>
@@ -146,6 +153,20 @@ export const View = () => {
                   </tbody>
                 </table>
               </div>
+              <ReactPaginate
+                previousLabel={"previous"}
+                nextLabel={"next"}
+                breakLabel={"..."}
+                breakClassName={"break-me"}
+                pageCount={pageCount}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={5}
+                onPageChange={handlePageClick}
+                containerClassName={"pagination"}
+                subContainerClassName={"pages pagination"}
+                activeClassName={"active"}
+              />
+
             </div>
           </div>
         </div>
