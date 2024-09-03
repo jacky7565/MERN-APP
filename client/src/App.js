@@ -3,6 +3,7 @@ import { View } from './components/fetch_user/User';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AddUser } from './components/add_user/CreateUser';
 import { Updateuser } from './components/update_user/UpdateUser';
+import { Login } from './components/login_user/Login';
 
 
 
@@ -22,9 +23,10 @@ function App() {
       path: "/edit/:id",
       element:<Updateuser/>
     },
+
     {
-      path: "/delete",
-      element: "delete"
+      path: "/login",
+      element:<Login/>
     },
 
   ]);

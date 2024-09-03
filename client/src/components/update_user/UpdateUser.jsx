@@ -16,6 +16,7 @@ export let Updateuser = () => {
     password: "",
   };
   const { id } = useParams();
+  const token=localStorage.getItem("token");
   let [userData, setUserdata] = useState(upData);
   let [errors,setErrors]=useState({})
   let inputHandler = (e) => {
@@ -26,12 +27,13 @@ export let Updateuser = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:7000/api/getone/" + id)
+      .get("http://localhost:7000/api/getone/" + id,{headers:{Authorization:`Bearer ${token}`}})
       .then((response) => {
         setUserdata(response.data);
       })
       .catch((error) => {
         console.log(error);
+        nav("/login")
       });
   }, [id]);
 
@@ -59,17 +61,19 @@ export let Updateuser = () => {
   let submitUpdatedata = async (e) => {
     e.preventDefault();
     let upValidation = formValidation();
+    let token=localStorage.getItem("token");
     if (Object.keys(upValidation).length > 0) {
       setErrors(upValidation)
     } else {
        await axios
-        .put("http://localhost:7000/api/update/" + id, userData)
+        .put("http://localhost:7000/api/update/" + id,userData,{headers:{Authorization:`Bearer ${token}`}})
         .then((response) => {
           toast.success("Data Update SuccessFully", { position: "top-right" });
           nav("/");
         })
         .catch((error) => {
           console.log(error);
+          nav("/login")
         });
     }
   };

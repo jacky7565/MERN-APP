@@ -1,4 +1,6 @@
 import User from "../model/user_model.js";
+import jwt from "jsonwebtoken";
+
 export const create = async (req, res) => {
     try {
         const userData = new User(req.body);
@@ -73,3 +75,4 @@ export const deleteData = async (req, res) => {
         res.status(500).json({ "error": error })
     }
 }
+

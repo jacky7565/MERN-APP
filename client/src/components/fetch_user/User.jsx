@@ -4,25 +4,45 @@ import { useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import ReactPaginate from  "react-paginate";
+import ReactPaginate from "react-paginate";
 
 export const View = () => {
   let navigate = useNavigate();
   let addClick = () => {
     navigate("/add");
   };
-  const [intSeach,Setsearch]=useState("");
+  const [intSeach, Setsearch] = useState("");
   let [fech, setFetch] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage] = useState(10);
 
   useEffect(() => {
     let getData = async () => {
-      let responseData = await axios.get("http://localhost:7000/api/getdata");
-      setFetch(responseData.data);
+      try {
+        const token = localStorage.getItem("token");
+        // console.log(`my token==: ${token}`);
+        let responseData = await axios.get(
+          "http://localhost:7000/api/getdata",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // console.log(responseData)
+        if (responseData.length === 0) {
+          navigate("/login");
+        } else {
+          setFetch(responseData.data);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        navigate("/login");
+      }
     };
     getData();
-  }, []);
+  }, [navigate]);
 
   let deleteUser = async (id) => {
     Swal.fire({
@@ -36,31 +56,42 @@ export const View = () => {
     }).then(async (confirm) => {
       if (confirm.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:7000/api/delete/${id}`);
+          const token = localStorage.getItem("token");
+          
+          await axios.delete(`http://localhost:7000/api/delete/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
           Swal.fire("Deleted!", "Your data has been deleted.", "success");
 
           setFetch(fech.filter((user) => user._id !== id));
         } catch (error) {
-          console.error(error);
           Swal.fire(
             "Error!",
             "There was an error deleting your data.",
             "error"
           );
+          navigate("/login");
+
         }
       }
     });
   };
 
-  let filterData = fech.filter(val =>
-    val.fname.toLowerCase().includes(intSeach.toLowerCase()) ||
-    val.lname.toLowerCase().includes(intSeach.toLowerCase()) ||
-    val.email.toLowerCase().includes(intSeach.toLowerCase())
+  if (fech.length === 0) {
+    navigate("/login");
+  }
+
+  let filterData = fech.filter(
+    (val) =>
+      val.fname.toLowerCase().includes(intSeach.toLowerCase()) ||
+      val.lname.toLowerCase().includes(intSeach.toLowerCase()) ||
+      val.email.toLowerCase().includes(intSeach.toLowerCase())
   );
   let searchUsers = (e) => {
     let { value } = e.target;
-    Setsearch(value)
-   
+    Setsearch(value);
   };
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
@@ -69,7 +100,7 @@ export const View = () => {
   const offset = currentPage * itemsPerPage;
   const currentPageData = filterData.slice(offset, offset + itemsPerPage);
   const pageCount = Math.ceil(filterData.length / itemsPerPage);
-
+  // console.table(pageCount)
 
   return (
     <>
@@ -130,7 +161,7 @@ export const View = () => {
                                 <span className="checkmark"></span>
                               </label>
                             </th>
-                            <td>{index + 1+offset}</td>
+                            <td>{index + 1 + offset}</td>
                             <td>{val.fname}</td>
                             <td>{val.lname}</td>
                             <td>{val.email}</td>
@@ -166,7 +197,6 @@ export const View = () => {
                 subContainerClassName={"pages pagination"}
                 activeClassName={"active"}
               />
-
             </div>
           </div>
         </div>
